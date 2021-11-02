@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>    
+    <meta charset="UTF-8">
+    <title>Виселица</title>
+</head>
+
+<body>
+	<h1>Виселица</h1>
+    <canvas id="canvas" width="400" height="400"></canvas>
+
+    <script>
+    //количество попыток
+    var countAnswer = 20;
+    var incorrectWord = 0;
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    //возвращает случайно выбранное слово
+    var pickWord = function() {
+        //создание массива со словами
+        var words = [
+            "программа",
+            "макака",
+            "прекрасный",
+            "оладушек",
+            "город",
+            "непревзойденный"
+        ];
+        //выбор случайного слова из массива
+        return words[Math.floor(Math.random() * words.length)];
+    }
+
+    //возвращение итогового массива для заданного слова word
+    var setupAnswerArray = function(word) {
+        var answerArray = [];
+        for (var i = 0; i < word.length; i++) {
+            answerArray[i] = "_";
+        }
+        return answerArray;
+    }
+
+    //с помощью alert отображет текущее состояние игры
+    var showPlayerProgress = function(answerArray) {
+        //отображение состояния игры
+        alert(answerArray.join(" "));
+    }
+
+    //запрашивает ответ игрока с помощью prompt
+    var getGuess = function() {
+        //запрашиваем вариант ответа
+        var guess = prompt("Угадайте букву или нажмите Отмена для выхода из игры.");
+        return guess;
+    }
+
+    //Обновляет answerArray согласно ответу игрока (guess)
+    //возвращает число, обозначающее, сколько раз буква guess встречается в слове, чтобы можно было обновить значение remainigLetters
+    var updateGameState = function(guess, word, answerArray) {
+        var guessCount = 0;
+        //обновление состояния игры
+        for (var j = 0; j < word.length; j++) {
+            if (word[j] === guess && answerArray[j] === "_") {
+                answerArray[j] = guess;
+                drawCorrectGuess(guess, j);
+                guessCount++;
+            }
+        }
+        return guessCount;
+    }
+
+    //с помощью alert показывает игроку отгаданное слово
+    var showAnswerAndCongratulatePlayer = function(answerArray) {
+        //отображение ответа
+        alert(answerArray.join(" "));
+        alert("Отлично! Было загадано слово " + word);
+    }
+
+    //отображение человечка по неправильному ответу
+    var drawMan = function(incorrectWord) {
+        ctx.lineWidth = 4;
+
+        if (incorrectWord === 1) {
+            ctx.strokeRect(20, 20, 20, 20);
+        }
+        if (incorrectWord === 2) {
+            ctx.beginPath();
+            ctx.moveTo(30, 40);
+            ctx.lineTo(30, 70);
+            ctx.stroke();
+        }
+        if (incorrectWord === 3) {
+            ctx.beginPath();
+            ctx.moveTo(30, 70);
+            ctx.lineTo(50, 95);
+            ctx.stroke();
+        }
+        if (incorrectWord === 4) {
+            ctx.beginPath();
+            ctx.moveTo(30, 70);
+            ctx.lineTo(10, 95);
+            ctx.stroke();
+        }
+        if (incorrectWord === 5) {
+            ctx.beginPath();
+            ctx.moveTo(10, 50);
+            ctx.lineTo(60, 50);
+            ctx.stroke();
+        }
+    };
+
+
+    //рисование подчеркиваний для правильного слова
+    var drawUnderscores = function(howMany) {
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+
+        for (var i = 0; i < howMany; i++) {
+            ctx.moveTo((i * 30) + 10, 160);
+            ctx.lineTo((i * 30) + 30, 160);
+        }
+
+        ctx.stroke();
+    };
+
+    //рисование правильно отгаданной буквы
+    var drawCorrectGuess = function(guess, index) {
+        ctx.font = "20px Comic Sans MS";
+        ctx.fillText(guess.toUpperCase(), (index * 30) + 10, 150);
+    };
+
+    //рисование неправильно заданной буквы
+    var drawIncorrectGuess = function(guess, index) {
+        ctx.font = "20px Comic Sans MS";
+        ctx.fillText(guess.toUpperCase(), 380, (index * 20) + 40);
+        ctx.moveTo(380, (index * 20) + 30);
+        ctx.lineTo(400, (index * 20) + 30);
+        ctx.stroke();
+    };
+
+    //загаданное слово
+    var word = pickWord();
+    //итоговый массив
+    var answerArray = setupAnswerArray(word);
+    //сколько букв осталось отгадать
+    var remainingLetters = word.length;
+
+    drawUnderscores(word.length);
+
+    //игровой цикл
+    while (remainingLetters > 0 && countAnswer > 0) {
+        showPlayerProgress(answerArray);
+        
+        var guess = getGuess();
+        if (guess === null) {
+            //выход из игрового цикла
+            break;
+        } else if (guess.length !== 1) {
+            alert("Пожалуйста, введите только одну букву.");
+        } else {
+        	guess = guess.toLowerCase();
+        	countAnswer--;
+            var correctGuesses = updateGameState(guess, word, answerArray);
+            remainingLetters -= correctGuesses;
+
+            if (correctGuesses === 0) {
+                drawMan(incorrectWord);
+                drawIncorrectGuess(guess, incorrectWord);
+                incorrectWord++;
+            }
+        }
+    }
+    showAnswerAndCongratulatePlayer(answerArray);
+    </script>
+</body>
+</html>
