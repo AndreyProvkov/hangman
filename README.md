@@ -1,2 +1,4 @@
 # hangman
-Learn project
+## Using technology
+- HTML
+- JS
